@@ -226,7 +226,7 @@ class BuildPaths:
         def find_sources_in(basedir, srcdir):
             for (dirpath, _, filenames) in os.walk(os.path.join(basedir, srcdir)):
                 for filename in filenames:
-                    if filename.endswith('.cpp') and not filename.startswith('.'):
+                    if filename.endswith('.cpp') and not filename.startswith('.') and not dirpath.count('cmake'):
                         yield os.path.join(dirpath, filename)
 
         def find_headers_in(basedir, srcdir):
@@ -3341,6 +3341,10 @@ def do_io_for_build(cc, arch, osinfo, using_mods, info_modules, build_paths, sou
 
     write_template(in_build_dir('build.h'), in_build_data('buildh.in'))
     write_template(in_build_dir('botan.doxy'), in_build_data('botan.doxy.in'))
+
+    robust_makedirs(in_build_dir("cmake"))
+    write_template(in_build_dir('cmake/botan-config.cmake'), in_build_data('botan-config.cmake.in'))
+    write_template(in_build_dir('cmake/botan-config-version.cmake'), in_build_data('botan-config-version.cmake.in'))
 
     if 'botan_pkgconfig' in template_vars:
         write_template(template_vars['botan_pkgconfig'], in_build_data('botan.pc.in'))

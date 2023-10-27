@@ -1,0 +1,71 @@
+set(_Botan_supported_components
+%{for mod_list}
+%{i}
+%{endfor}
+)
+
+unset(${CMAKE_FIND_PACKAGE_NAME}_FOUND)
+unset(_Botan_missing_required_modules)
+
+foreach(_comp IN LISTS ${CMAKE_FIND_PACKAGE_NAME}_FIND_COMPONENTS)
+  if (NOT _comp IN_LIST _Botan_supported_components)
+    set(${CMAKE_FIND_PACKAGE_NAME}_${_comp}_FOUND False)
+    if(${CMAKE_FIND_PACKAGE_NAME}_FIND_REQUIRED_${_comp})
+      list(APPEND _Botan_missing_required_modules ${_comp})
+    endif()
+  else()
+    set(${CMAKE_FIND_PACKAGE_NAME}_${_comp}_FOUND True)
+  endif()
+endforeach()
+
+if(_Botan_missing_required_modules)
+  set(${CMAKE_FIND_PACKAGE_NAME}_FOUND False)
+  list(JOIN _Botan_missing_required_modules ", " _missing_modules)
+  set(${CMAKE_FIND_PACKAGE_NAME}_NOT_FOUND_MESSAGE "Unsupported module(s): ${_missing_modules}")
+endif()
+
+if(DEFINED ${CMAKE_FIND_PACKAGE_NAME}_FOUND AND NOT ${${CMAKE_FIND_PACKAGE_NAME}_FOUND})
+  return()
+endif()
+
+%{if build_static_lib}
+if(NOT TARGET Botan::Botan-static)
+  add_library(Botan::Botan-static STATIC IMPORTED)
+  set_target_properties(Botan::Botan-static
+    PROPERTIES
+      IMPORTED_LOCATION                 "${CMAKE_CURRENT_LIST_DIR}/../../%{static_lib_name}"
+      INTERFACE_INCLUDE_DIRECTORIES     "${CMAKE_CURRENT_LIST_DIR}/../../../include/botan-%{version_major}"
+      IMPORTED_LINK_INTERFACE_LANGUAGES "CXX"
+      INTERFACE_LINK_OPTIONS            "SHELL:%{cxx_abi_flags}")
+endif()
+%{endif}
+
+%{if implib_name}
+set(_Botan_implib     "${CMAKE_CURRENT_LIST_DIR}/../../%{implib_name}")
+set(_Botan_shared_lib "${CMAKE_CURRENT_LIST_DIR}/../../../bin/%{shared_lib_name}")
+%{endif}
+%{unless implib_name}
+set(_Botan_implib     "")
+%{endif}
+
+%{if build_shared_lib}
+if(NOT TARGET Botan::Botan)
+  if(NOT DEFINED _Botan_shared_lib)
+    set(_Botan_shared_lib "${CMAKE_CURRENT_LIST_DIR}/../../%{shared_lib_name}")
+  endif()
+
+  add_library(Botan::Botan SHARED IMPORTED)
+  set_target_properties(Botan::Botan
+      PROPERTIES
+          IMPORTED_LOCATION             "${_Botan_shared_lib}"
+          IMPORTED_IMPLIB               "${_Botan_implib}"
+          INTERFACE_INCLUDE_DIRECTORIES "${CMAKE_CURRENT_LIST_DIR}/../../../include/botan-%{version_major}"
+          INTERFACE_LINK_OPTIONS        "SHELL:%{cxx_abi_flags}")
+  set_property(TARGET Botan::Botan APPEND PROPERTY IMPORTED_CONFIGURATIONS NOCONFIG)
+  set_target_properties(Botan::Botan PROPERTIES
+      IMPORTED_LOCATION_NOCONFIG "${CMAKE_CURRENT_LIST_DIR}/../../%{shared_lib_name}"
+      IMPORTED_SONAME_NOCONFIG   "%{shared_lib_name}")
+endif()
+%{endif}
+
+set(${CMAKE_FIND_PACKAGE_NAME}_FOUND True)
