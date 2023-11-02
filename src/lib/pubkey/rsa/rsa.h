@@ -48,6 +48,9 @@ class BOTAN_PUBLIC_API(2,0) RSA_PublicKey : public virtual Public_Key
 
       std::vector<uint8_t> public_key_bits() const override;
 
+      std::vector<uint8_t> public_mode_bits() const override;
+
+      std::vector<uint8_t> public_exponent_bits() const override;
       /**
       * @return public modulus
       */

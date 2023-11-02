@@ -84,6 +84,11 @@ class BOTAN_PUBLIC_API(2,0) Public_Key
       * @return BER encoded public key bits
       */
       virtual std::vector<uint8_t> public_key_bits() const = 0;
+      /**
+      * @return BER encoded public mode bits
+      */
+      virtual std::vector<uint8_t> public_mode_bits() const;
+      virtual std::vector<uint8_t> public_exponent_bits() const;
 
       /**
       * @return X.509 subject key encoding for this key object

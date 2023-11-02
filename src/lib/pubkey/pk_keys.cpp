@@ -35,6 +35,15 @@ std::string create_hex_fingerprint(const uint8_t bits[],
    return fprint;
    }
 
+std::vector<uint8_t> Public_Key::public_mode_bits() const
+{
+   return public_key_bits();
+}
+std::vector<uint8_t> Public_Key::public_exponent_bits() const
+{
+   std::vector<uint8_t> output;
+   return output;
+}
 std::vector<uint8_t> Public_Key::subject_public_key() const
    {
    std::vector<uint8_t> output;

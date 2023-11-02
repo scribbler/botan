@@ -157,7 +157,20 @@ std::vector<uint8_t> RSA_PublicKey::public_key_bits() const
 
    return output;
    }
-
+std::vector<uint8_t> RSA_PublicKey::public_mode_bits() const
+   {
+   const BigInt& n = get_n();
+   std::vector<uint8_t> output(n.bytes());
+   n.binary_encode(&output[0]);
+   return output;
+   }
+std::vector<uint8_t> RSA_PublicKey::public_exponent_bits() const
+   {
+   const BigInt& e = get_e();
+   std::vector<uint8_t> output(e.bytes());
+   e.binary_encode(&output[0]);
+   return output;
+   }
 /*
 * Check RSA Public Parameters
 */
